@@ -5,6 +5,8 @@
 TEMPLATE = app
 TARGET = streamgrid
 INCLUDEPATH += .
+CONFIG += c++11
+
 QT += multimedia multimediawidgets
 
 HEADERS = streamgrid.h

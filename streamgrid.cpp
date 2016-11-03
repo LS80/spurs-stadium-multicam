@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QMediaPlayer>
-// #include <QMediaContent>
 #include <QVideoWidget>
 #include <QUrl>
 #include <QString>
@@ -38,16 +37,24 @@ StreamGrid::StreamGrid()
       player->setMedia(QUrl(url));
       player->setVideoOutput(videoWidget);
       layout->addWidget(videoWidgets[i], row, column);
+      QObject::connect(player, &QMediaPlayer::mediaStatusChanged,
+                       this, &StreamGrid::changedMediaStatus);
       i++;
     }
   }
 }
 
-void StreamGrid::start()
+void StreamGrid::changedMediaStatus(QMediaPlayer::MediaStatus state)
 {
   for (int i=0; i<4; i++) {
-    players[i]->play();
+    if (players[i]->mediaStatus() != QMediaPlayer::BufferedMedia) return;
   }
+  emit ready();
+}
+
+void StreamGrid::start()
+{
+  for (int i=0; i<4; i++) players[i]->play();
 }
 
 void StreamGrid::keyPressEvent(QKeyEvent *event)

@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QAction
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
@@ -15,6 +15,8 @@ class StreamGrid(QMainWindow):
         ('0i1p9ue46_1@409669', 1, 0),
         ('04et6qkjl_1@409668', 1, 1)
     ]
+
+    ready = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -38,12 +40,17 @@ class StreamGrid(QMainWindow):
             player.setMedia(QMediaContent(QUrl(url)))
             videoWidget = QVideoWidget()
             player.setVideoOutput(videoWidget)
+            player.mediaStatusChanged.connect(self.changedMediaStatus)
             self.players.append(player)
             layout.addWidget(videoWidget, row, column)
 
+    def changedMediaStatus(self, state):
+        if all(player.mediaStatus() == QMediaPlayer.BufferedMedia for player in self.players):
+            self.ready.emit()
+
 app = QApplication(sys.argv)
 main = StreamGrid()
-main.show()
+main.ready.connect(main.showFullScreen)
 [player.play() for player in main.players]
 
 app.exec_()

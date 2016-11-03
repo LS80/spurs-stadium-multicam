@@ -1,9 +1,8 @@
 #include <QMainWindow>
+#include <QMediaPlayer>
 
 class QKeyEvent;
 class QWidget;
-// #include <QMediaPlayer>
-class QMediaPlayer;
 class QVideoWidget;
 
 class StreamGrid : public QMainWindow
@@ -16,6 +15,10 @@ private:
   QWidget *mainWidget;
   QMediaPlayer* players[4];
   QVideoWidget* videoWidgets[4];
+public slots:
+  void changedMediaStatus(QMediaPlayer::MediaStatus state);
+signals:
+  void ready();
 protected:
   void keyPressEvent(QKeyEvent *event);
 };
