@@ -22,7 +22,8 @@ StreamGrid::StreamGrid()
   QString streams[] = { "04asu087t_1@409528",
                         "074tzyqju_1@394719",
                         "0i1p9ue46_1@409669",
-                        "04et6qkjl_1@409668" };
+                        "04et6qkjl_1@409668",
+                        "0xorfu8d8_1@308855" };
 
   const QString urlFmt = "http://streamamghdl-lh.akamaihd.net/i/%1/index_1_av-p.m3u8";
 
@@ -49,15 +50,54 @@ void StreamGrid::changedMediaStatus(QMediaPlayer::MediaStatus state)
   for (int i=0; i<4; i++) {
     if (players[i]->mediaStatus() != QMediaPlayer::BufferedMedia) return;
   }
-  emit ready();
+  emit allStreamsBuffered();
 }
 
 void StreamGrid::start()
 {
-  for (int i=0; i<4; i++) players[i]->play();
+  for (int i=0; i<4; i++) {
+    videoWidgets[i]->show();
+    players[i]->play();
+  }
+}
+
+void StreamGrid::fullScreenStream(int index)
+{
+  for (int i=0; i<4; i++)
+  {
+    if (i == index) {
+      videoWidgets[i]->showFullScreen();
+      players[i]->play();
+    }
+    else {
+      videoWidgets[i]->hide();
+      players[i]->stop();
+    }
+  }
 }
 
 void StreamGrid::keyPressEvent(QKeyEvent *event)
 {
-  if(event->key() == Qt::Key_Escape) close();
+  switch(event->key())
+  {
+    case Qt::Key_Escape:
+      close();
+      break;
+    case Qt::Key_1:
+      fullScreenStream(0);
+      break;
+    case Qt::Key_2:
+      fullScreenStream(1);
+      break;
+    case Qt::Key_3:
+      fullScreenStream(2);
+      break;
+    case Qt::Key_4:
+      fullScreenStream(3);
+      break;
+    case Qt::Key_0:
+    case Qt::Key_F11:
+      start();
+      break;
+  }
 }

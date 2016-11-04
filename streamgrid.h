@@ -15,10 +15,10 @@ private:
   QWidget *mainWidget;
   QMediaPlayer* players[4];
   QVideoWidget* videoWidgets[4];
+  void fullScreenStream(int index);
+  void keyPressEvent(QKeyEvent *event);
 public slots:
   void changedMediaStatus(QMediaPlayer::MediaStatus state);
 signals:
-  void ready();
-protected:
-  void keyPressEvent(QKeyEvent *event);
+  void allStreamsBuffered();
 };
