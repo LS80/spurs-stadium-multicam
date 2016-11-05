@@ -1,5 +1,4 @@
 #include "streamgrid.h"
-#include <iostream>
 
 #include <QWidget>
 #include <QGridLayout>
@@ -27,51 +26,58 @@ StreamGrid::StreamGrid()
 
   const QString urlFmt = "http://streamamghdl-lh.akamaihd.net/i/%1/index_1_av-p.m3u8";
 
+  for (int i=0; i<5; i++) {
+    QMediaPlayer *player = new QMediaPlayer;
+    players[i] = player;
+    QVideoWidget *videoWidget = new QVideoWidget;
+    videoWidgets[i] = videoWidget;
+    QString url = urlFmt.arg(streams[i]);
+    player->setMedia(QUrl(url));
+    player->setVideoOutput(videoWidget);
+  }
+
   int i = 0;
   for (int row=0; row<2; row++) {
     for (int column=0; column<2; column++) {
-      QMediaPlayer *player = new QMediaPlayer;
-      players[i] = player;
-      QVideoWidget *videoWidget = new QVideoWidget;
-      videoWidgets[i] = videoWidget;
-      QString url = urlFmt.arg(streams[i]);
-      player->setMedia(QUrl(url));
-      player->setVideoOutput(videoWidget);
       layout->addWidget(videoWidgets[i], row, column);
-      QObject::connect(player, &QMediaPlayer::mediaStatusChanged,
-                       this, &StreamGrid::changedMediaStatus);
+      QObject::connect(players[i], &QMediaPlayer::mediaStatusChanged,
+                       this, &StreamGrid::checkIfStreamGridPlaying);
       i++;
     }
   }
+  videoWidgets[4]->hide();
+  layout->addWidget(videoWidgets[4], 0, 2);
 }
 
-void StreamGrid::changedMediaStatus(QMediaPlayer::MediaStatus state)
+void StreamGrid::checkIfStreamGridPlaying(QMediaPlayer::MediaStatus state)
 {
   for (int i=0; i<4; i++) {
     if (players[i]->mediaStatus() != QMediaPlayer::BufferedMedia) return;
   }
-  emit allStreamsBuffered();
+  emit streamGridPlaying();
 }
 
-void StreamGrid::start()
+void StreamGrid::playStreamGrid()
+{
+  for (int i=0; i<4; i++) players[i]->play();
+}
+
+void StreamGrid::showStreamGrid()
 {
   for (int i=0; i<4; i++) {
     videoWidgets[i]->show();
-    players[i]->play();
   }
+  videoWidgets[4]->hide();
 }
 
-void StreamGrid::fullScreenStream(int index)
+void StreamGrid::showStreamFullScreen(int index)
 {
-  for (int i=0; i<4; i++)
+  players[index]->play();
+  videoWidgets[index]->show();
+  for (int i=0; i<5; i++)
   {
-    if (i == index) {
-      videoWidgets[i]->showFullScreen();
-      players[i]->play();
-    }
-    else {
+    if (i != index) {
       videoWidgets[i]->hide();
-      players[i]->stop();
     }
   }
 }
@@ -84,20 +90,15 @@ void StreamGrid::keyPressEvent(QKeyEvent *event)
       close();
       break;
     case Qt::Key_1:
-      fullScreenStream(0);
-      break;
     case Qt::Key_2:
-      fullScreenStream(1);
-      break;
     case Qt::Key_3:
-      fullScreenStream(2);
-      break;
     case Qt::Key_4:
-      fullScreenStream(3);
+    case Qt::Key_5:
+      showStreamFullScreen(event->key() - Qt::Key_1);
       break;
     case Qt::Key_0:
     case Qt::Key_F11:
-      start();
+      showStreamGrid();
       break;
   }
 }

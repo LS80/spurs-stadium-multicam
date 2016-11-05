@@ -10,15 +10,16 @@ class StreamGrid : public QMainWindow
   Q_OBJECT
 public:
   StreamGrid();
-  void start();
+  void playStreamGrid();
 private:
   QWidget *mainWidget;
-  QMediaPlayer* players[4];
-  QVideoWidget* videoWidgets[4];
-  void fullScreenStream(int index);
+  QMediaPlayer* players[5];
+  QVideoWidget* videoWidgets[5];
+  void showStreamGrid();
+  void showStreamFullScreen(int index);
   void keyPressEvent(QKeyEvent *event);
 public slots:
-  void changedMediaStatus(QMediaPlayer::MediaStatus state);
+  void checkIfStreamGridPlaying(QMediaPlayer::MediaStatus state);
 signals:
-  void allStreamsBuffered();
+  void streamGridPlaying();
 };
