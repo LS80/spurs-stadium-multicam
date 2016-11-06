@@ -1,6 +1,5 @@
 #include "streamgrid.h"
 
-#include <QWidget>
 #include <QGridLayout>
 #include <QMediaPlayer>
 #include <QVideoWidget>
@@ -9,14 +8,12 @@
 #include <QKeyEvent>
 
 StreamGrid::StreamGrid()
-  : mainWidget(new QWidget)
+  : layout(new QGridLayout)
 {
-  setCentralWidget(mainWidget);
-
-  QGridLayout *layout = new QGridLayout;
+  setAttribute(Qt::WA_QuitOnClose);
   layout->setSpacing(0);
   layout->setContentsMargins(0, 0, 0, 0);
-  mainWidget->setLayout(layout);
+  setLayout(layout);
 
   QString streams[] = { "04asu087t_1@409528",
                         "074tzyqju_1@394719",
@@ -27,9 +24,9 @@ StreamGrid::StreamGrid()
   const QString urlFmt = "http://streamamghdl-lh.akamaihd.net/i/%1/index_1_av-p.m3u8";
 
   for (int i=0; i<5; i++) {
-    QMediaPlayer *player = new QMediaPlayer;
+    QMediaPlayer *player = new QMediaPlayer(this);
     players[i] = player;
-    QVideoWidget *videoWidget = new QVideoWidget;
+    QVideoWidget *videoWidget = new QVideoWidget(this);
     videoWidgets[i] = videoWidget;
     QString url = urlFmt.arg(streams[i]);
     player->setMedia(QUrl(url));

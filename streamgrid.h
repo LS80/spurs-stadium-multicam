@@ -1,18 +1,18 @@
-#include <QMainWindow>
+#include <QWidget>
 #include <QMediaPlayer>
 
 class QKeyEvent;
-class QWidget;
 class QVideoWidget;
+class QGridLayout;
 
-class StreamGrid : public QMainWindow
+class StreamGrid : public QWidget
 {
   Q_OBJECT
 public:
   StreamGrid();
   void playStreamGrid();
 private:
-  QWidget *mainWidget;
+  QGridLayout *layout;
   QMediaPlayer* players[5];
   QVideoWidget* videoWidgets[5];
   void showStreamGrid();
