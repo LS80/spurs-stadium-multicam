@@ -9,7 +9,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 
-class StreamGrid(QWidget):
+class StreamViewer(QWidget):
     streams_ready = pyqtSignal()
 
     def __init__(self, streams):
@@ -106,7 +106,7 @@ streams = [QUrl(STREAM_URL_FMT.format(id)) for id in STREAM_IDS]
 
 app = QApplication(sys.argv)
 
-viewer = StreamGrid(streams)
+viewer = StreamViewer(streams)
 viewer.showFullScreen()
 viewer.streams_ready.connect(viewer.showStreamGrid)
 
