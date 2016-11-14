@@ -14,6 +14,7 @@ class StreamViewer(QWidget):
 
     def __init__(self, streams):
         self.streams = streams
+        self.starting_player_indices = set(range(len(self.streams)))
         super().__init__()
 
         self.setAttribute(Qt.WA_QuitOnClose)
@@ -28,11 +29,11 @@ class StreamViewer(QWidget):
 
         label = QLabel()
         label.setAlignment(Qt.AlignCenter)
-        loading = QMovie("loading.gif")
-        loading.start()
-        label.setMovie(loading)
+        self.loading_gif = QMovie("loading.gif")
+        label.setMovie(self.loading_gif)
         self.layout.insertWidget(0, label)
 
+        self.streams_ready.connect(self.showStartingScreen)
         self.players = []
         for stream in self.streams:
             player = QMediaPlayer()
@@ -62,9 +63,17 @@ class StreamViewer(QWidget):
         self.players[4].setVideoOutput(video_widget)
         self.layout.insertWidget(2, video_widget)
 
+        self.loading_gif.start()
+
+    def showStartingScreen(self):
+        self.showStreamGrid()
+        self.loading_gif.stop()
+        for player in self.players:
+            player.mediaStatusChanged.disconnect(self.changedMediaStatus)
+
     def showStreamFullScreen(self, index):
-        if index == 4:
-            self.layout.setCurrentIndex(2)
+        if index > 3:
+            self.layout.setCurrentIndex(index - 2)
         else:
             self.grid_widgets[index].show()
             for i, widget in enumerate(self.grid_widgets):
@@ -86,9 +95,18 @@ class StreamViewer(QWidget):
         elif key == (Qt.Key_0):
             self.showStreamGrid()
 
-    def changedMediaStatus(self, state):
-        if all((player.mediaStatus() == QMediaPlayer.BufferedMedia) or
-               (player.state() == QMediaPlayer.StoppedState) for player in self.players):
+    def isStreamReady(self, player):
+        return (player.mediaStatus() in (QMediaPlayer.BufferedMedia,
+                                         QMediaPlayer.StalledMedia) or
+                player.state() == QMediaPlayer.StoppedState)
+
+    def changedMediaStatus(self, status):
+        player = self.sender()
+        index = self.players.index(player)
+        if index in self.starting_player_indices and self.isStreamReady(player):
+            self.starting_player_indices.remove(index)
+
+        if not self.starting_player_indices:
             self.streams_ready.emit()
 
 
@@ -108,6 +126,5 @@ app = QApplication(sys.argv)
 
 viewer = StreamViewer(streams)
 viewer.showFullScreen()
-viewer.streams_ready.connect(viewer.showStreamGrid)
 
 app.exec_()
