@@ -1,4 +1,4 @@
-#include "streamgrid.h"
+#include "streamviewer.h"
 
 #include <QApplication>
 
@@ -6,10 +6,10 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
 
-  StreamGrid streams;
-  QObject::connect(&streams, &StreamGrid::streamGridPlaying,
-                   &streams, &StreamGrid::showFullScreen);
-  streams.playStreamGrid();
+  StreamViewer viewer;
+  QObject::connect(&viewer, &StreamViewer::streamGridPlaying,
+                   &viewer, &StreamViewer::showFullScreen);
+  viewer.playStreamGrid();
 
   return app.exec();
 }

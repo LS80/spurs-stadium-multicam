@@ -3,12 +3,12 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = streamgrid
+TARGET = streamviewer
 INCLUDEPATH += .
 CONFIG += c++11
 
 QT += multimedia multimediawidgets
 
-HEADERS = streamgrid.h
+HEADERS = streamviewer.h
 
-SOURCES = streamgrid.cpp main.cpp
+SOURCES = streamviewer.cpp main.cpp

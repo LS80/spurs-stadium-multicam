@@ -5,11 +5,11 @@ class QKeyEvent;
 class QVideoWidget;
 class QGridLayout;
 
-class StreamGrid : public QWidget
+class StreamViewer : public QWidget
 {
   Q_OBJECT
 public:
-  StreamGrid();
+  StreamViewer();
   void playStreamGrid();
 private:
   QGridLayout *layout;

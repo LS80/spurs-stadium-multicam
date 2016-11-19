@@ -1,4 +1,4 @@
-#include "streamgrid.h"
+#include "streamviewer.h"
 
 #include <QGridLayout>
 #include <QMediaPlayer>
@@ -7,7 +7,7 @@
 #include <QString>
 #include <QKeyEvent>
 
-StreamGrid::StreamGrid()
+StreamViewer::StreamViewer()
   : layout(new QGridLayout)
 {
   setAttribute(Qt::WA_QuitOnClose);
@@ -38,7 +38,7 @@ StreamGrid::StreamGrid()
     for (int column=0; column<2; column++) {
       layout->addWidget(videoWidgets[i], row, column);
       QObject::connect(players[i], &QMediaPlayer::mediaStatusChanged,
-                       this, &StreamGrid::checkIfStreamGridPlaying);
+                       this, &StreamViewer::checkIfStreamGridPlaying);
       i++;
     }
   }
@@ -46,20 +46,21 @@ StreamGrid::StreamGrid()
   layout->addWidget(videoWidgets[4], 0, 2);
 }
 
-void StreamGrid::checkIfStreamGridPlaying(QMediaPlayer::MediaStatus state)
+void StreamViewer::checkIfStreamGridPlaying(QMediaPlayer::MediaStatus state)
 {
+  Q_UNUSED(state);
   for (int i=0; i<4; i++) {
     if (players[i]->mediaStatus() != QMediaPlayer::BufferedMedia) return;
   }
   emit streamGridPlaying();
 }
 
-void StreamGrid::playStreamGrid()
+void StreamViewer::playStreamGrid()
 {
   for (int i=0; i<4; i++) players[i]->play();
 }
 
-void StreamGrid::showStreamGrid()
+void StreamViewer::showStreamGrid()
 {
   for (int i=0; i<4; i++) {
     videoWidgets[i]->show();
@@ -67,7 +68,7 @@ void StreamGrid::showStreamGrid()
   videoWidgets[4]->hide();
 }
 
-void StreamGrid::showStreamFullScreen(int index)
+void StreamViewer::showStreamFullScreen(int index)
 {
   players[index]->play();
   videoWidgets[index]->show();
@@ -79,7 +80,7 @@ void StreamGrid::showStreamFullScreen(int index)
   }
 }
 
-void StreamGrid::keyPressEvent(QKeyEvent *event)
+void StreamViewer::keyPressEvent(QKeyEvent *event)
 {
   switch(event->key())
   {
