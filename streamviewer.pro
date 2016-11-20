@@ -9,6 +9,8 @@ CONFIG += c++11
 
 QT += multimedia multimediawidgets
 
+RESOURCES = streamviewer.qrc
+
 HEADERS = streamviewer.h
 
 SOURCES = streamviewer.cpp main.cpp
