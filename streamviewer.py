@@ -2,12 +2,34 @@
 
 import sys
 
-from PyQt5.QtCore import Qt, QUrl, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QStackedLayout, QLabel
-from PyQt5.QtGui import QMovie, QPalette
+from PyQt5.QtCore import Qt, QUrl, pyqtSignal, QSizeF
+from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QGridLayout, QStackedLayout, QGraphicsView,
+                             QGraphicsScene, QGraphicsSimpleTextItem)
+from PyQt5.QtGui import QMovie, QPalette, QFont, QBrush, QColor
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 
+class NumberedVideoWidget(QGraphicsView):
+    def __init__(self, i, video_item):
+        self.video_item = video_item
+        scene = QGraphicsScene()
+        super().__init__(scene)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setStyleSheet("border-style: none")
+        scene.setBackgroundBrush(QBrush(Qt.black))
+        scene.addItem(video_item)
+        text = QGraphicsSimpleTextItem(str(i+1))
+        font = QFont("Helvetica", 48)
+        brush = QBrush(QColor.fromRgb(255, 255, 0))
+        text.setBrush(brush)
+        text.setFont(font)
+        text.setPos(50, 50)
+        scene.addItem(text)
+
+    def resizeEvent(self, event):
+        size = event.size()
+        self.video_item.setSize(QSizeF(size.width(), size.height()))
 
 class StreamViewer(QWidget):
     streams_ready = pyqtSignal()
@@ -52,15 +74,17 @@ class StreamViewer(QWidget):
         self.grid_widgets = []
         for row in range(2):
             for column in range(2):
-                video_widget = QVideoWidget()
-                self.players[i].setVideoOutput(video_widget)
+                video_item = QGraphicsVideoItem()
+                self.players[i].setVideoOutput(video_item)
+                video_widget = NumberedVideoWidget(i, video_item)
                 self.grid_widgets.append(video_widget)
                 grid_layout.addWidget(video_widget, row, column)
                 i+=1
         self.layout.insertWidget(1, self.grid_widget)
 
-        video_widget = QVideoWidget()
-        self.players[4].setVideoOutput(video_widget)
+        video_item = QGraphicsVideoItem()
+        video_widget = NumberedVideoWidget(4, video_item)
+        self.players[4].setVideoOutput(video_item)
         self.layout.insertWidget(2, video_widget)
 
         self.loading_gif.start()
